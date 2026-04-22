@@ -1,17 +1,24 @@
 # MIRa — Music Information Retrieval Analysis
 
-> An end-to-end system for extracting and visualizing semantic audio features from music files, combining classical signal processing with transformer-based classification models.
+> > A research-oriented prototype exploring how audio features and ML models can be combined into usable music analysis and retrieval systems.
+
+## TL;DR
+
+- Upload a music file → get semantic audio features (tempo, key, genre, mood)
+- Combines Librosa signal processing + Transformer-based classification
+- Deployed end-to-end (FastAPI + Next.js)
+- Currently being extended toward music similarity and retrieval
 
 ![MIRa upload interface](./images/upload.png)
 ![MIRa analysis results](./images/results.png)
 
-**[Live Demo](https://anuouseph-mira.vercel.app)** · **[API (Hugging Face Spaces)](https://anuouseph-mira-music-analysis-api.hf.space/docs)**
+**[Live Demo](https://mir-a.vercel.app)** · **[API (Hugging Face Spaces)](https://anuouseph-mira-music-analysis-api.hf.space/docs)**
 
 ---
 
 ## Overview
 
-MIRa is a music analysis system built to explore how audio signal processing and machine learning models can be combined into a practical, usable interface. The system accepts an audio file and returns a structured set of features covering tonal, rhythmic, timbral, and affective dimensions of the track.
+MIRa is a music analysis prototype built to explore how audio signal processing and machine learning models can be combined into a practical, usable interface. The system accepts an audio file and returns a structured set of features covering tonal, rhythmic, timbral, and affective dimensions of the track.
 
 The project is motivated by core MIR research tasks — automatic annotation, genre classification, mood inference, and generative AI detection — and serves as a foundation for further work in music similarity and recommendation.
 
@@ -28,17 +35,17 @@ The project is motivated by core MIR research tasks — automatic annotation, ge
 | Instrument Detection | Hugging Face audio classifier | Label + confidence % |
 | Genre Classification | Transformer-based model | Top genres + confidence % |
 | Mood / Affect | Valence-arousal heuristics | Label, energy, valence |
-| AI vs Human Detection | Spectral heuristic analysis | Human/AI probability % |
+| AI vs Human Detection | Experimental spectral heuristic | Human/AI probability % |
 
 ---
 
 ## Technical Approach
 
-**Signal Processing Layer** — Low-level features (tempo, key, loudness) are extracted using Librosa, which applies beat tracking, chroma short-time Fourier transforms, and RMS energy analysis to the raw audio waveform. These methods are well-established in the MIR literature and provide interpretable, reproducible outputs.
+**Signal Processing Layer** — Low-level features such as tempo, key, and loudness are extracted using Librosa. This includes beat tracking, chroma-based analysis, and RMS energy computation on the raw audio waveform. These methods are well-established in MIR and provide interpretable and reproducible outputs.
 
-**Classification Layer** — Higher-level semantic features (genre, instrument, mood) are produced by fine-tuned Hugging Face Transformer models trained on audio classification tasks. These models operate on mel-spectrogram representations of the audio.
+**Classification Layer** — Higher-level semantic features (genre, instrument, mood) are produced using pretrained Hugging Face Transformer models. These operate on mel-spectrogram representations of the audio to infer perceptual and categorical attributes.
 
-**Limitations & Future Work** — The current genre classifier performs well on broad categories but struggles with subgenre distinction, a known challenge in MIR (Tzanetakis & Cook, 2002). The AI detection module is a heuristic approximation based on spectral regularity — production-grade detection would require specialized models and labelled datasets (e.g., Donahue et al., 2023). Future development will explore music similarity computation using cosine distance over MFCC and chroma feature vectors, enabling track comparison and recommendation.
+**Limitations & Future Work** — The current genre classification performs well for broad categories but struggles with fine-grained subgenres, which is a known limitation in MIR literature (Tzanetakis & Cook, 2002). The AI detection module is an experimental heuristic based on spectral patterns and does not represent a production-level solution. Future work will extend the system toward music similarity by computing distances over MFCC and chroma feature vectors, enabling track comparison and basic recommendation workflows.
 
 ---
 
