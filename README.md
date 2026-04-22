@@ -1,6 +1,13 @@
 # MIRa — Music Information Retrieval Analysis
 
-> > A research-oriented prototype exploring how audio features and ML models can be combined into usable music analysis and retrieval systems.
+> A research-oriented prototype exploring how audio features and ML models can be combined into usable music analysis and retrieval systems.
+
+![MIRa upload interface](./images/upload.png)
+![MIRa analysis results](./images/results.png)
+
+**[Live Demo](https://mir-a.vercel.app)** · **[API (Hugging Face Spaces)](https://anuouseph-mira-music-analysis-api.hf.space/docs)**
+
+---
 
 ## TL;DR
 
@@ -8,11 +15,6 @@
 - Combines Librosa signal processing + Transformer-based classification
 - Deployed end-to-end (FastAPI + Next.js)
 - Currently being extended toward music similarity and retrieval
-
-![MIRa upload interface](./images/upload.png)
-![MIRa analysis results](./images/results.png)
-
-**[Live Demo](https://mir-a.vercel.app)** · **[API (Hugging Face Spaces)](https://anuouseph-mira-music-analysis-api.hf.space/docs)**
 
 ---
 
