@@ -22,7 +22,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy ALL other files from local to container
 COPY . .
 
-# Expose port 8000
+# Expose port 7860
 EXPOSE 7860
 
 # Run the application
