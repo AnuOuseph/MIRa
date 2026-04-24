@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 import analyzer  
+from services.music_similarity import compare_audio_files as calculate_similarity
 import os
 import tempfile
 
@@ -47,7 +48,7 @@ async def compare_audio_files(file1: UploadFile = File(...), file2: UploadFile =
             tmp_file_path2 = tmp2.name
 
         # Calculate similarity score
-        similarity_score = analyzer.music_similarity(tmp_file_path1, tmp_file_path2)
+        similarity_score = calculate_similarity(tmp_file_path1, tmp_file_path2)
 
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": f"Comparison failed: {str(e)}"})

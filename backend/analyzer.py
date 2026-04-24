@@ -66,15 +66,6 @@ def analyze_audio(file_path: str) -> dict:
 
     return analysis_results
 
-# Feature based music similarity function
-def music_similarity(file_path1: str, file_path2: str) -> float:
-    """
-    Compares two audio files and returns a similarity score between 0 and 1.
-    This is a very basic implementation based on tempo and key similarity.
-    """
-
-    return file_path1, file_path2, 0.75  # Placeholder for actual similarity score calculation
-    
 
 # Test the function directly if this file is run
 if __name__ == "__main__":
