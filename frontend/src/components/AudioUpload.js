@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Upload, Music } from 'lucide-react';
+import { Upload, Music, Plus } from 'lucide-react';
 
-const AudioUpload = ({ onAnalysisStart, onAnalysisComplete, onError, disabled }) => {
+const AudioUpload = ({ onAnalysisStart, onAnalysisComplete, onError, disabled, setData }) => {
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -19,6 +19,7 @@ const AudioUpload = ({ onAnalysisStart, onAnalysisComplete, onError, disabled })
     
     const formData = new FormData();
     formData.append('file', file);
+    setData(file.name)
 
     try {
       const response = await fetch(process.env.NEXT_PUBLIC_MIRA_API_URL, {
@@ -60,7 +61,7 @@ const AudioUpload = ({ onAnalysisStart, onAnalysisComplete, onError, disabled })
   return (
     <div className="space-y-4 flex justify-center items-center">
       <div
-        className={`border-2 border-dashed rounded-[10px] flex flex-col justify-center items-center rounded-xl p-10 w-[100%] h-[200px] text-center transition-all ${
+        className={`border-dashed border-gray-300 border rounded-[10px] flex flex-col justify-center items-center rounded-xl p-8 w-[100%] gap-2 text-center transition-all ${
           dragActive 
             ? 'border-blue-400 bg-blue-50' 
             : 'border-gray-300 hover:border-gray-400'
@@ -71,12 +72,14 @@ const AudioUpload = ({ onAnalysisStart, onAnalysisComplete, onError, disabled })
         onDrop={handleDrop}
         onClick={() => !disabled && fileInputRef.current?.click()}
       >
-        <Music className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <p className="text-gray-600 mb-2">
-          Drag & drop your audio file here, or click to browse
+        <div className="bg-gray-100 rounded-full p-2">
+          <Plus className="text-gray-600 " size={16}/>
+        </div>
+        <p className="text-gray-600 text-sm font-[600]">
+          Drag & drop your audio file
         </p>
         <p className="text-sm text-gray-500">
-          Supports MP3, WAV, and other audio formats
+          or click to browse · WAV, MP3, etc.
         </p>
       </div>
 
