@@ -2,6 +2,7 @@
 
 import AnalysisResults from '@/components/AnalysisResult';
 import AudioUpload from '@/components/AudioUpload';
+import Similarity from '@/components/Similarity';
 import GeneralAnalysis from '@/components/GeneralAnalysis';
 import { AudioLines, Dot, HeartPulse, Music } from 'lucide-react';
 import { useState } from 'react';
@@ -30,7 +31,7 @@ export default function Home() {
     <main className="min-h-screen w-full flex bg-[#f9fafc]">
       <div className="w-full flex flex-col mx-auto">
         {/* Header */}
-        <div className="bg-white w-full sticky top-0 flex h-15 items-center justify-between gap-2 text-center border-gray-300 border-b-[0.5px] px-40">
+        <div className="bg-[#ffffff] w-full sticky top-0 flex h-15 items-center justify-between gap-2 text-center border-gray-300 border-b-[0.5px] px-40">
           <div className='flex gap-2 items-center'>
             <div className="bg-[#edeef8] border-[0.5px] border-gray-300 rounded-md h-8 w-8 flex items-center justify-center" >
               <AudioLines className="mx-auto text-[#515bc3]" size={18} />
@@ -47,7 +48,7 @@ export default function Home() {
               Similarity
             </button>
           </div>
-          <div className='text-sm text-gray-500 flex gap-1 items-center'>
+          <div className='text-sm text-gray-500 flex gap-1 items-center font-[monospace]'>
             <p>docs </p><span><Dot size={14}/></span><p> api</p>
           </div>
         </div>
@@ -58,24 +59,24 @@ export default function Home() {
         {mode === 'analyze' && (
           <div className="my-16">
             <div className='flex flex-col gap-2'>
-              <div className='text-[#515bc3] bg-[#e0e6ff] w-fit px-2 py-1 rounded-full flex items-center gap-2'>
+              <div className='text-[#515bc3] bg-[#e0e6ff] w-fit px-2 py-1 rounded-full flex items-center gap-1'>
                 <p className="text-xs uppercase font-medium">Mode</p>
                 <Dot size={14} className="text-[#515bc3]" />
                 <p className='text-xs uppercase font-medium'>{mode}</p>
               </div>
-              <p className="text-gray-800 text-3xl font-semibold">
+              <p className="text-gray-800 text-[30px] leading-[30px] font-[550] tracking-[1px] mb-1">
                 Extract features from a track
               </p>
-              <p className="text-gray-600 text-sm max-w-2xl">
+              <p className="text-gray-600 text-[14px] max-w-2xl tracking-wide">
                 Upload one audio file. MIRa computes tempo, key, spectral descriptors, rhythm patterns and timbral fingerprints used in music information retrieval.
               </p>
             </div>
             <div className='flex gap-4'>
-              <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-4 h-fit rounded-xl mt-10 p-6'>
+              <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-4 h-fit rounded-xl mt-10 px-6 py-3'>
                 <div>
-                  <p className='text-xs font-[600]'>01 INPUT</p>
+                  <p className='text-[11px] font-[600] mt-2'>01 INPUT</p>
                 </div>
-                <p className='py-3 mb-2 uppercase text-gray-500 font-light text-xs'>Audio file</p>
+                <p className='pt-3 pb-[6px] uppercase text-gray-500 font-light text-[12px]'>Audio file</p>
                 {/* Upload Section */}
                   {!analysisData && !loading && !error && (
                   <div className="bg-white rounded-xl">
@@ -104,7 +105,7 @@ export default function Home() {
                   {!analysisData && loading && (
                     <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 text-center flex flex-col gap-4 justify-center items-center">
                       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-                      <p className="text-gray-600 text-sm">Analyzing your music... This may take a moment</p>
+                      <p className="text-gray-600 text-xs">Analyzing your music... This may take a moment</p>
                     </div>
                   )}
 
@@ -115,9 +116,9 @@ export default function Home() {
                     </div>
                   )}
               </div>
-              <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-8 rounded-xl mt-10 p-6'>
+              <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-8 rounded-xl mt-10 px-6 py-3'>
                 <div>
-                  <p className='text-xs font-[600]'>02 RESULTS</p>
+                  <p className='text-[11px] font-[600] mt-2'>02 RESULTS</p>
                 </div>
                 {!analysisData && (
                   <div className="bg-white rounded-xl border-dashed border-gray-300 border mt-10 p-8 text-center">
@@ -127,7 +128,7 @@ export default function Home() {
                       </div>
                       <div className='flex flex-col gap-1'>
                         <p className='text-sm'>No analysis yet</p>
-                        <p className='text-xs'>Upload an audio file and run the analysis to see extracted features here.</p>
+                        <p className='text-xs text-gray-500'>Upload an audio file and run the analysis to see extracted features here.</p>
                       </div>
                     </div>
                   </div>
@@ -145,20 +146,119 @@ export default function Home() {
         {mode === 'similarity' && (
           <div className="my-16">
             <div className='flex flex-col gap-2'>
-              <div className='text-[#515bc3] bg-[#e0e6ff] w-fit px-2 py-1 rounded-md flex items-center gap-2'>
+              <div className='text-[#515bc3] bg-[#e0e6ff] w-fit px-2 py-1 rounded-full flex items-center gap-1'>
                 <p className="text-xs uppercase font-medium">Mode</p>
                 <Dot size={14} className="text-[#515bc3]" />
                 <p className='text-xs uppercase font-medium'>{mode}</p>
               </div>
-              <p className="text-gray-800 text-3xl font-semibold">
+              <p className="text-gray-800 text-[30px] leading-[30px] font-[550] tracking-[1px] mb-1">
                 Compare two tracks
               </p>
-              <p className="text-gray-600 text-sm max-w-2xl">
+              <p className="text-gray-600 text-[14px] max-w-2xl tracking-wide">
                 Upload two audio files. MIRa computes a similarity score across multiple feature dimensions and highlights where the tracks converge and differ.
               </p>
             </div>
-            <div className='mt-10'>
-              <p className='text-sm'>Feature in progress…</p>
+            <div>
+              <div className='flex gap-4'>
+              <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-4 h-fit rounded-xl mt-10 px-6 py-3'>
+                <div>
+                  <p className='text-[10px] font-[600] uppercase mt-2'>01 Track A</p>
+                </div>
+                <p className='pt-3 pb-[6px] tracking-[1px] uppercase text-gray-500 font-light text-[12px]'>Reference</p>
+                {/* Upload Section */}
+                  {!analysisData && !loading && !error && (
+                  <div className="bg-white rounded-xl">
+                    <AudioUpload
+                      onAnalysisStart={() => setLoading(true)}
+                      onAnalysisComplete={handleAnalysisComplete}
+                      onError={handleError}
+                      disabled={loading}
+                      setData={setData}
+                    />
+                  </div>
+                  )}
+
+                  {analysisData && !loading && (
+                    <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 text-center flex flex-col gap-4 justify-center items-center">
+                      <div className='text-[#515bc3] bg-[#e0e6ff] w-8 h-8 rounded-full flex items-center justify-center mx-auto'>
+                        <Music size={16} className="text-[#515bc3]" />
+                      </div>
+                      <p className='text-sm text-gray-500'>{data ? data : ''}</p>
+                      <button onClick={()=>setAnalysisData(null)} className="bg-[#515bc3] w-full text-sm text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                        Reset
+                      </button>
+                    </div>
+                  )}
+                  {/* Loading State */}
+                  {!analysisData && loading && (
+                    <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 text-center flex flex-col gap-4 justify-center items-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+                      <p className="text-gray-600 text-xs">Analyzing your music... This may take a moment</p>
+                    </div>
+                  )}
+
+                  {/* Error State */}
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center w-full  flex justify-center items-center">
+                      <p className="text-red-600 font-medium text-xs">Error: {error}</p>
+                    </div>
+                  )}
+              </div>
+              {/* -------- */}
+              <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-4 h-fit rounded-xl mt-10 px-6 py-3'>
+                <div>
+                  <p className='text-[10px] font-[600] uppercase mt-2'>02 Track B</p>
+                </div>
+                <p className='pt-3 pb-[6px] tracking-[1px] uppercase text-gray-500 font-light text-[13px]'>Candidate</p>
+                {/* Upload Section */}
+                  {!analysisData && !loading && !error && (
+                  <div className="bg-white rounded-xl">
+                    <AudioUpload
+                      onAnalysisStart={() => setLoading(true)}
+                      onAnalysisComplete={handleAnalysisComplete}
+                      onError={handleError}
+                      disabled={loading}
+                      setData={setData}
+                    />
+                  </div>
+                  )}
+
+                  {analysisData && !loading && (
+                    <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 text-center flex flex-col gap-4 justify-center items-center">
+                      <div className='text-[#515bc3] bg-[#e0e6ff] w-8 h-8 rounded-full flex items-center justify-center mx-auto'>
+                        <Music size={16} className="text-[#515bc3]" />
+                      </div>
+                      <p className='text-sm text-gray-500'>{data ? data : ''}</p>
+                      <button onClick={()=>setAnalysisData(null)} className="bg-[#515bc3] w-full text-sm text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                        Reset
+                      </button>
+                    </div>
+                  )}
+                  {/* Loading State */}
+                  {!analysisData && loading && (
+                    <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 text-center flex flex-col gap-4 justify-center items-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+                      <p className="text-gray-600 text-xs">Analyzing your music... This may take a moment</p>
+                    </div>
+                  )}
+
+                  {/* Error State */}
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center w-full  flex justify-center items-center">
+                      <p className="text-red-600 font-medium text-xs">Error: {error}</p>
+                    </div>
+                  )}
+              </div>
+              </div>
+
+              <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-8 rounded-xl mt-6 px-6 py-3 flex justify-between items-center '>
+                <p className='flex items-center gap-3 text-gray-500 text-[13px] font-[monospace] font-medium'>distance: cosine <span className='text-xs text-gray-300'>|</span> features: mfcc <span>·</span> chroma <span>·</span> centroid <span>·</span> tempo</p>
+                <button className='bg-[#515bc3] text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-[14px] font-semibold'>Compute Similarity</button>
+              </div>
+
+              <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-8 rounded-xl mt-6 p-6 '>
+                <Similarity />
+              </div>
             </div>
           </div>
         )}

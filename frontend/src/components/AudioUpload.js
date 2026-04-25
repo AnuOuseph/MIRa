@@ -75,12 +75,14 @@ const AudioUpload = ({ onAnalysisStart, onAnalysisComplete, onError, disabled, s
         <div className="bg-gray-100 rounded-full p-2">
           <Plus className="text-gray-600 " size={16}/>
         </div>
-        <p className="text-gray-600 text-sm font-[600]">
-          Drag & drop your audio file
-        </p>
-        <p className="text-sm text-gray-500">
-          or click to browse · WAV, MP3, etc.
-        </p>
+        <div>
+          <p className="text-gray-600 text-sm font-[600]">
+            Drop your audio file
+          </p>
+          <p className="text-xs text-gray-500">
+            or click to browse · WAV, MP3, etc.
+          </p>
+        </div>
       </div>
 
       <input
