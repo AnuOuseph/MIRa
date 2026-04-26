@@ -20,7 +20,15 @@ const Header = ({setMode, mode}) => {
             </button>
           </div>
           <div className='text-sm text-gray-500 flex gap-1 items-center font-[monospace]'>
-            <p>docs </p><span><Dot size={14}/></span><p> api</p>
+            <a href="https://github.com/AnuOuseph/MIRa/blob/main/README.md" target="_blank" rel="noopener noreferrer">
+              docs
+            </a>
+            <span>
+              <Dot size={14} />
+            </span>
+            <a href="https://anuouseph-mira-music-analysis-api.hf.space/docs" target="_blank" rel="noopener noreferrer">
+              api
+            </a>
           </div>
         </div>
     );
