@@ -3,57 +3,70 @@
 import AnalysisResults from '@/components/AnalysisResult';
 import AudioUpload from '@/components/AudioUpload';
 import Similarity from '@/components/Similarity';
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
+import Loading from '@/utils/Loading';
+import Error from '@/utils/Error';
 import GeneralAnalysis from '@/components/GeneralAnalysis';
 import { AudioLines, Dot, HeartPulse, Music } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Home() {
+  // Analysis States
   const [analysisData, setAnalysisData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [mode, setMode] = useState('analyze');
   const [data, setData] = useState(null);
+  const [fileName, setFileName] = useState(null);
+
+  // Analysis data handler
   const handleAnalysisComplete = (data) => {
     setAnalysisData(data);
     setLoading(false);
   };
 
+  // Analysis error handler
   const handleError = (errorMsg) => {
     setError(errorMsg);
     setLoading(false);
   };
 
+  const handleFetchData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(process.env.NEXT_PUBLIC_MIRA_API_URL, {
+        method: 'POST',
+        body: data,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Analysis failed: ${response.statusText}`);
+        setLoading(false);
+      }
+
+      const res_data = await response.json();
+      handleAnalysisComplete(res_data);
+      setLoading(false);
+    } catch (error) {
+      handleError(error.message || 'Failed to analyze audio. Make sure the backend is running.');
+      setLoading(false);
+    }
+  }
+
+  // Switch Features
   const handleModeChange = (nextMode) => {
     setMode(nextMode === 'analyze' ? 'analyze' : 'similarity');
   };
 
   return (
     <main className="min-h-screen w-full flex bg-[#f9fafc]">
-      <div className="w-full flex flex-col mx-auto">
+      <div className="w-full min-h-screen flex flex-col mx-auto">
         {/* Header */}
-        <div className="bg-[#ffffff] w-full sticky top-0 flex h-15 items-center justify-between gap-2 text-center border-gray-300 border-b-[0.5px] px-40">
-          <div className='flex gap-2 items-center'>
-            <div className="bg-[#edeef8] border-[0.5px] border-gray-300 rounded-md h-8 w-8 flex items-center justify-center" >
-              <AudioLines className="mx-auto text-[#515bc3]" size={18} />
-            </div>
-            <h3 className="text-md font-[600] text-gray-800 flex gap-2">
-              MIRa 
-            </h3>
-          </div>
-          <div className='border-[0.5px] border-gray-300 bg-[#f9fafc] p-1 flex rounded-lg'>
-            <button onClick={() => setMode('analyze')} className={` hover:text-gray-800 text-[15px] font-[500] py-1 px-4 cursor-pointer rounded-lg ${mode === 'analyze' ? 'bg-white text-gray-900 shadow-sm' : 'bg-transparent text-gray-600 shadow-none'}`}>
-              Analyze
-            </button>
-            <button onClick={() => setMode('similarity')} className={`hover:text-gray-800 text-[15px] font-[500] py-1 px-4 cursor-pointer rounded-lg ${mode === 'similarity' ? 'bg-white text-gray-900 shadow-sm' : 'bg-transparent text-gray-600 shadow-none'}`}>
-              Similarity
-            </button>
-          </div>
-          <div className='text-sm text-gray-500 flex gap-1 items-center font-[monospace]'>
-            <p>docs </p><span><Dot size={14}/></span><p> api</p>
-          </div>
-        </div>
+        <Header setMode={handleModeChange} mode={mode} />
 
-        <div className='px-40 '>
+        {/* Main Content */}
+        <div className='px-40 flex-1'>
 
         {/* Analysis Mode */}
         {mode === 'analyze' && (
@@ -76,52 +89,54 @@ export default function Home() {
                 <div>
                   <p className='text-[11px] font-[600] mt-2'>01 INPUT</p>
                 </div>
-                <p className='pt-3 pb-[6px] uppercase text-gray-500 font-light text-[12px]'>Audio file</p>
+                <div className='flex justify-between'>
+                  <p className='pt-3 pb-[6px] uppercase text-gray-500 font-light text-[12px]'>Audio file</p>
+                  { !loading && fileName && (
+                  <button onClick={()=>{setFileName(null); setAnalysisData(null); setError('');}} className="text-[11px] cursor-pointer text-gray-800 py-2">
+                    Reset
+                  </button>
+                  )}
+                </div>
                 {/* Upload Section */}
-                  {!analysisData && !loading && !error && (
+                  { !loading && !fileName && (
                   <div className="bg-white rounded-xl">
                     <AudioUpload
-                      onAnalysisStart={() => setLoading(true)}
-                      onAnalysisComplete={handleAnalysisComplete}
+                      
                       onError={handleError}
                       disabled={loading}
                       setData={setData}
+                      setFileName={setFileName}
                     />
                   </div>
                   )}
 
-                  {analysisData && !loading && (
+                  { !loading && fileName && (
                     <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 text-center flex flex-col gap-4 justify-center items-center">
                       <div className='text-[#515bc3] bg-[#e0e6ff] w-8 h-8 rounded-full flex items-center justify-center mx-auto'>
                         <Music size={16} className="text-[#515bc3]" />
                       </div>
-                      <p className='text-sm text-gray-500'>{data ? data : ''}</p>
-                      <button onClick={()=>setAnalysisData(null)} className="bg-[#515bc3] w-full text-sm text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                        Reset
+                      <p className='text-sm text-gray-500'>{fileName ? fileName : ''}</p>
+                      <button onClick={()=>handleFetchData()} className="bg-[#515bc3] w-full cursor-pointer text-sm text-white px-4 py-2 rounded-md hover:opacity-90">
+                        Run Analysis
                       </button>
                     </div>
                   )}
                   {/* Loading State */}
                   {!analysisData && loading && (
-                    <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 text-center flex flex-col gap-4 justify-center items-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-                      <p className="text-gray-600 text-xs">Analyzing your music... This may take a moment</p>
-                    </div>
+                    <Loading />
                   )}
 
                   {/* Error State */}
                   {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center w-full  flex justify-center items-center">
-                      <p className="text-red-600 font-medium text-xs">Error: {error}</p>
-                    </div>
+                    <Error message={error} />
                   )}
               </div>
-              <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-8 rounded-xl mt-10 px-6 py-3'>
+              <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-8 rounded-xl mt-10 px-6 pb-6'>
                 <div>
-                  <p className='text-[11px] font-[600] mt-2'>02 RESULTS</p>
+                  <p className='text-[11px] font-[600] mt-6'>02 RESULTS</p>
                 </div>
                 {!analysisData && (
-                  <div className="bg-white rounded-xl border-dashed border-gray-300 border mt-10 p-8 text-center">
+                  <div className="bg-white rounded-xl border-dashed border-gray-300 border mt-7 p-8 text-center">
                     <div className="flex flex-col gap-3 justify-center items-center">
                       <div className="bg-gray-100 rounded-full p-2 w-fit">
                         <AudioLines size={16}/>
@@ -169,11 +184,11 @@ export default function Home() {
                   {!analysisData && !loading && !error && (
                   <div className="bg-white rounded-xl">
                     <AudioUpload
-                      onAnalysisStart={() => setLoading(true)}
-                      onAnalysisComplete={handleAnalysisComplete}
+                      
                       onError={handleError}
                       disabled={loading}
                       setData={setData}
+                      setFileName={setFileName}
                     />
                   </div>
                   )}
@@ -183,7 +198,7 @@ export default function Home() {
                       <div className='text-[#515bc3] bg-[#e0e6ff] w-8 h-8 rounded-full flex items-center justify-center mx-auto'>
                         <Music size={16} className="text-[#515bc3]" />
                       </div>
-                      <p className='text-sm text-gray-500'>{data ? data : ''}</p>
+                      <p className='text-sm text-gray-500'>{fileName ? fileName : ''}</p>
                       <button onClick={()=>setAnalysisData(null)} className="bg-[#515bc3] w-full text-sm text-white px-4 py-2 rounded-md hover:bg-blue-600">
                         Reset
                       </button>
@@ -191,17 +206,12 @@ export default function Home() {
                   )}
                   {/* Loading State */}
                   {!analysisData && loading && (
-                    <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 text-center flex flex-col gap-4 justify-center items-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-                      <p className="text-gray-600 text-xs">Analyzing your music... This may take a moment</p>
-                    </div>
+                    <Loading />
                   )}
 
                   {/* Error State */}
                   {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center w-full  flex justify-center items-center">
-                      <p className="text-red-600 font-medium text-xs">Error: {error}</p>
-                    </div>
+                    <Error message={error} />
                   )}
               </div>
               {/* -------- */}
@@ -211,24 +221,24 @@ export default function Home() {
                 </div>
                 <p className='pt-3 pb-[6px] tracking-[1px] uppercase text-gray-500 font-light text-[13px]'>Candidate</p>
                 {/* Upload Section */}
-                  {!analysisData && !loading && !error && (
+                  {!analysisData && !loading && !error && !fileName && (
                   <div className="bg-white rounded-xl">
                     <AudioUpload
-                      onAnalysisStart={() => setLoading(true)}
-                      onAnalysisComplete={handleAnalysisComplete}
+                      
                       onError={handleError}
                       disabled={loading}
                       setData={setData}
+                      setFileName={setFileName}
                     />
                   </div>
                   )}
 
-                  {analysisData && !loading && (
+                  { !loading && fileName && (
                     <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 text-center flex flex-col gap-4 justify-center items-center">
                       <div className='text-[#515bc3] bg-[#e0e6ff] w-8 h-8 rounded-full flex items-center justify-center mx-auto'>
                         <Music size={16} className="text-[#515bc3]" />
                       </div>
-                      <p className='text-sm text-gray-500'>{data ? data : ''}</p>
+                      <p className='text-sm text-gray-500'>{fileName ? fileName : ''}</p>
                       <button onClick={()=>setAnalysisData(null)} className="bg-[#515bc3] w-full text-sm text-white px-4 py-2 rounded-md hover:bg-blue-600">
                         Reset
                       </button>
@@ -236,17 +246,12 @@ export default function Home() {
                   )}
                   {/* Loading State */}
                   {!analysisData && loading && (
-                    <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 text-center flex flex-col gap-4 justify-center items-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-                      <p className="text-gray-600 text-xs">Analyzing your music... This may take a moment</p>
-                    </div>
+                     <Loading />
                   )}
 
                   {/* Error State */}
                   {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center w-full  flex justify-center items-center">
-                      <p className="text-red-600 font-medium text-xs">Error: {error}</p>
-                    </div>
+                    <Error message={error} />
                   )}
               </div>
               </div>
@@ -254,6 +259,21 @@ export default function Home() {
               <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-8 rounded-xl mt-6 px-6 py-3 flex justify-between items-center '>
                 <p className='flex items-center gap-3 text-gray-500 text-[13px] font-[monospace] font-medium'>distance: cosine <span className='text-xs text-gray-300'>|</span> features: mfcc <span>·</span> chroma <span>·</span> centroid <span>·</span> tempo</p>
                 <button className='bg-[#515bc3] text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-[14px] font-semibold'>Compute Similarity</button>
+              </div>
+
+              
+              <div className='bg-white shadow-sm border-[0.5px] border-gray-100 rounded-xl mt-10 px-6 py-6'>
+                <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 text-center">
+                  <div className="flex flex-col gap-3 justify-center items-center">
+                    <div className="bg-gray-100 rounded-full p-2 w-fit">
+                      <AudioLines size={16}/>
+                    </div>
+                    <div className='flex flex-col gap-1'>
+                      <p className='text-sm'>No comparison yet</p>
+                      <p className='text-xs text-gray-500'>Upload two tracks and run the similarity computation.</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-8 rounded-xl mt-6 p-6 '>
@@ -264,6 +284,8 @@ export default function Home() {
         )}
         </div>
 
+        {/* footer */}
+        <div><Footer /></div>
       </div>
     </main>
   );

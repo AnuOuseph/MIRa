@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { Upload, Music, Plus } from 'lucide-react';
 
-const AudioUpload = ({ onAnalysisStart, onAnalysisComplete, onError, disabled, setData }) => {
+const AudioUpload = ({  onError, disabled, setData, setFileName }) => {
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -15,27 +15,28 @@ const AudioUpload = ({ onAnalysisStart, onAnalysisComplete, onError, disabled, s
       return;
     }
 
-    onAnalysisStart();
     
     const formData = new FormData();
     formData.append('file', file);
-    setData(file.name)
+    setData(formData);
+    setFileName(file.name);
 
-    try {
-      const response = await fetch(process.env.NEXT_PUBLIC_MIRA_API_URL, {
-        method: 'POST',
-        body: formData,
-      });
 
-      if (!response.ok) {
-        throw new Error(`Analysis failed: ${response.statusText}`);
-      }
+    // try {
+    //   const response = await fetch(process.env.NEXT_PUBLIC_MIRA_API_URL, {
+    //     method: 'POST',
+    //     body: formData,
+    //   });
 
-      const data = await response.json();
-      onAnalysisComplete(data);
-    } catch (error) {
-      onError(error.message || 'Failed to analyze audio. Make sure the backend is running.');
-    }
+    //   if (!response.ok) {
+    //     throw new Error(`Analysis failed: ${response.statusText}`);
+    //   }
+
+    //   const data = await response.json();
+    //   onAnalysisComplete(data);
+    // } catch (error) {
+    //   onError(error.message || 'Failed to analyze audio. Make sure the backend is running.');
+    // }
   };
 
   const handleDrag = (e) => {
