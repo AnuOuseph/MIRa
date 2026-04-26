@@ -1,20 +1,21 @@
 'use client';
 import CircularProgress from '@/utils/CircularProgress';
 
-const Similarity = () => {
+const Similarity = ({data, similarityRefFileName, similarityCandFileName}) => {
+    console.log(data)
     return (
         <div className="bg-white rounded-xl flex flex-col gap-6">
             <div className='flex gap-8 items-center mb-4'>
                 <div className="relative w-fit flex flex-col items-center justify-start">
-                    <CircularProgress value={30} />
+                    <CircularProgress value={data?.similarity_score.overall_similarity} />
                 </div>
                 <div className='flex flex-col gap-[14px]'>
                     <div className='flex flex-col gap-[8px]'>
-                        <p className="font-[monospace] uppercase tracking-[1px] text-gray-500 flex gap-2 items-center">Overall similarity <span className='text-[10px] text-[#515bc3] bg-[#e0e6ff] tracking-[1.5px] font-[550] w-fit px-[8px] py-[2px] rounded-full flex items-center'>Very similar</span></p>
-                        <p className='text-gray-800 text-[26px] leading-[26px] font-[550] tracking-[1.5px]'> 92.93 %</p>
+                        <p className="font-[monospace] uppercase tracking-[1px] text-gray-500 flex gap-2 items-center">Overall similarity <span className='text-[10px] text-[#515bc3] bg-[#e0e6ff] tracking-[1.5px] font-[550] w-fit px-[8px] py-[2px] rounded-full flex items-center'>{data?.similarity_score.similarity_label}</span></p>
+                        <p className='text-gray-800 text-[26px] leading-[26px] font-[550] tracking-[1.5px]'> {data?.similarity_score.overall_similarity} %</p>
                     </div>
                     <div>
-                        <p className="font-[monospace] text-[12px] tracking-[1px] text-gray-500 flex gap-2 items-center">vector_similarity: <span className="font-[550] text-gray-800">98.55%</span></p>
+                        <p className="font-[monospace] text-[12px] tracking-[1px] text-gray-500 flex gap-2 items-center">vector_similarity: <span className="font-[550] text-gray-800">{data?.similarity_score.vector_similarity}%</span></p>
                     </div>
                 </div>
             </div>
@@ -22,7 +23,7 @@ const Similarity = () => {
             <div className="border-[0.5px] border-gray-300 bg-[#fdfeff] rounded-lg px-6 py-4 flex-1 flex flex-col gap-3">
                 <div className='flex gap-3 items-center'>
                     <p className='text-[11px] text-[#515bc3] bg-[#e0e6ff] font-[550] w-6 h-6 px-[2px] py-[1px] rounded-md flex items-center justify-center'>A</p>
-                    <p className="text-[12px] text-gray-500 font-[monospace] ">backwards-morphing-tesseract-30sec-challenge-7430.mp3</p>
+                    <p className="text-[12px] text-gray-500 font-[monospace] ">{similarityRefFileName}</p>
                 </div>
                 <img src="/blue-audio.png" alt="" />
             </div>
@@ -30,7 +31,7 @@ const Similarity = () => {
             <div className="border-[0.5px] border-gray-300 bg-[#fdfeff] rounded-lg px-6 py-4 flex-1 flex flex-col gap-3 mb-3">
                 <div className='flex gap-3 items-center'>
                     <p className='text-[11px] text-[#515bc3] bg-[#e0e6ff] font-[550] w-6 h-6 px-[2px] py-[1px] rounded-md flex items-center justify-center'>B</p>
-                    <p className="text-[12px] text-gray-500 font-[monospace] ">magical-dramedy-orchestral-sneaky-spell-30-sec-375796.mp3</p>
+                    <p className="text-[12px] text-gray-500 font-[monospace] ">{similarityCandFileName}</p>
                 </div>
                 <img src="/gray-audio.png" alt="" />
             </div>
@@ -49,12 +50,12 @@ const Similarity = () => {
                             <div className="w-full bg-[#eff2f5] rounded-full h-[6px] my-1">
                                 <div
                                     className="bg-[#515bc3] h-[6px] rounded-full"
-                                    style={{ width: `${(30 ).toFixed(1)}%` }}
+                                    style={{ width: `${(data?.similarity_score?.feature_similarities?.timbre_mfcc || 0).toFixed(1)}%` }}
                                 ></div>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-800">
-                                    {(30).toFixed(1)}%
+                                    {(data?.similarity_score?.feature_similarities?.timbre_mfcc || 0).toFixed(1)}%
                                 </p>
                             </div>
                         </div>
@@ -69,12 +70,12 @@ const Similarity = () => {
                             <div className="w-full bg-[#eff2f5] rounded-full h-[6px] my-1">
                                 <div
                                     className="bg-[#515bc3] h-[6px] rounded-full"
-                                    style={{ width: `${(30 ).toFixed(1)}%` }}
+                                    style={{ width: `${(data?.similarity_score?.feature_similarities?.harmony_chroma || 0).toFixed(1)}%` }}
                                 ></div>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-800">
-                                    {(30).toFixed(1)}%
+                                    {(data?.similarity_score?.feature_similarities?.harmony_chroma || 0).toFixed(1)}%
                                 </p>
                             </div>
                         </div>
@@ -89,12 +90,12 @@ const Similarity = () => {
                             <div className="w-full bg-[#eff2f5] rounded-full h-[6px] my-1">
                                 <div
                                     className="bg-[#515bc3] h-[6px] rounded-full"
-                                    style={{ width: `${(30 ).toFixed(1)}%` }}
+                                    style={{ width: `${(data?.similarity_score?.feature_similarities?.brightness_spectral_centroid || 0).toFixed(1)}%` }}
                                 ></div>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-800">
-                                    {(30).toFixed(1)}%
+                                    {(data?.similarity_score?.feature_similarities?.brightness_spectral_centroid || 0).toFixed(1)}%
                                 </p>
                             </div>
                         </div>
@@ -109,12 +110,12 @@ const Similarity = () => {
                             <div className="w-full bg-[#eff2f5] rounded-full h-[6px] my-1">
                                 <div
                                     className="bg-[#515bc3] h-[6px] rounded-full"
-                                    style={{ width: `${(30 ).toFixed(1)}%` }}
+                                    style={{ width: `${(data?.similarity_score?.feature_similarities?.tempo || 0).toFixed(1)}%` }}
                                 ></div>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-800">
-                                    {(30).toFixed(1)}%
+                                    {(data?.similarity_score?.feature_similarities?.tempo || 0).toFixed(1)}%
                                 </p>
                             </div>
                         </div>

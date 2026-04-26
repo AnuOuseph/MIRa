@@ -12,13 +12,23 @@ import { AudioLines, Dot, HeartPulse, Music } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Home() {
+  const [mode, setMode] = useState('analyze');
+
   // Analysis States
   const [analysisData, setAnalysisData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [mode, setMode] = useState('analyze');
   const [data, setData] = useState(null);
   const [fileName, setFileName] = useState(null);
+
+  // Similarity States
+  const [similarityData, setSimilarityData] = useState(null);
+  const [similarityLoading, setSimilarityLoading] = useState(false);
+  const [similarityError, setSimilarityError] = useState('');
+  const [similarityRef, setSimilarityRef] = useState(null);
+  const [similarityCand, setSimilarityCand] = useState(null);
+  const [similarityRefFileName, setSimilarityRefFileName] = useState(null);
+  const [similarityCandFileName, setSimilarityCandFileName] = useState(null);
 
   // Analysis data handler
   const handleAnalysisComplete = (data) => {
@@ -32,12 +42,22 @@ export default function Home() {
     setLoading(false);
   };
 
+  // Similarity error handler
+  const handleSimilarityError = (errorMsg) => {
+    setSimilarityError(errorMsg);
+    setSimilarityLoading(false);
+  }
+
+  // Fetch data handler for analysis
   const handleFetchData = async () => {
     setLoading(true);
     try {
-      const response = await fetch(process.env.NEXT_PUBLIC_MIRA_API_URL, {
+      const formData = new FormData();
+      formData.append('file', data);
+
+      const response = await fetch(process.env.NEXT_PUBLIC_MIRA_API_URL + '/analyze', {
         method: 'POST',
-        body: data,
+        body: formData,
       });
 
       if (!response.ok) {
@@ -52,7 +72,35 @@ export default function Home() {
       handleError(error.message || 'Failed to analyze audio. Make sure the backend is running.');
       setLoading(false);
     }
-  }
+  };
+
+  // Fetch data handler for similarity
+  const handleFetchSimilarity = async () => {
+    setSimilarityLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file1', similarityRef);
+      formData.append('file2', similarityCand);
+
+      const response = await fetch(process.env.NEXT_PUBLIC_MIRA_API_URL + '/compare-audio', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Similarity computation failed: ${response.statusText}`);
+        setSimilarityLoading(false);
+      }
+
+      const res_data = await response.json();
+      setSimilarityData(res_data);
+      setSimilarityLoading(false);
+    }
+      catch (error) {
+        handleSimilarityError(error.message || 'Failed to compute similarity. Make sure the backend is running.');
+        setSimilarityLoading(false);
+      }
+  };
 
   // Switch Features
   const handleModeChange = (nextMode) => {
@@ -101,7 +149,6 @@ export default function Home() {
                   { !loading && !fileName && (
                   <div className="bg-white rounded-xl">
                     <AudioUpload
-                      
                       onError={handleError}
                       disabled={loading}
                       setData={setData}
@@ -175,94 +222,88 @@ export default function Home() {
             </div>
             <div>
               <div className='flex gap-4'>
-              <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-4 h-fit rounded-xl mt-10 px-6 py-3'>
-                <div>
-                  <p className='text-[10px] font-[600] uppercase mt-2'>01 Track A</p>
-                </div>
-                <p className='pt-3 pb-[6px] tracking-[1px] uppercase text-gray-500 font-light text-[12px]'>Reference</p>
-                {/* Upload Section */}
-                  {!analysisData && !loading && !error && (
-                  <div className="bg-white rounded-xl">
-                    <AudioUpload
-                      
-                      onError={handleError}
-                      disabled={loading}
-                      setData={setData}
-                      setFileName={setFileName}
-                    />
+
+                {/* track a */}
+                <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-4 h-fit rounded-xl mt-10 px-6 py-3'>
+                  <div>
+                    <p className='text-[10px] font-[600] uppercase mt-2'>01 Track A</p>
                   </div>
-                  )}
-
-                  {analysisData && !loading && (
-                    <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 text-center flex flex-col gap-4 justify-center items-center">
-                      <div className='text-[#515bc3] bg-[#e0e6ff] w-8 h-8 rounded-full flex items-center justify-center mx-auto'>
-                        <Music size={16} className="text-[#515bc3]" />
-                      </div>
-                      <p className='text-sm text-gray-500'>{fileName ? fileName : ''}</p>
-                      <button onClick={()=>setAnalysisData(null)} className="bg-[#515bc3] w-full text-sm text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                        Reset
-                      </button>
-                    </div>
-                  )}
-                  {/* Loading State */}
-                  {!analysisData && loading && (
-                    <Loading />
-                  )}
-
-                  {/* Error State */}
-                  {error && (
-                    <Error message={error} />
-                  )}
-              </div>
-              {/* -------- */}
-              <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-4 h-fit rounded-xl mt-10 px-6 py-3'>
-                <div>
-                  <p className='text-[10px] font-[600] uppercase mt-2'>02 Track B</p>
-                </div>
-                <p className='pt-3 pb-[6px] tracking-[1px] uppercase text-gray-500 font-light text-[13px]'>Candidate</p>
-                {/* Upload Section */}
-                  {!analysisData && !loading && !error && !fileName && (
-                  <div className="bg-white rounded-xl">
-                    <AudioUpload
-                      
-                      onError={handleError}
-                      disabled={loading}
-                      setData={setData}
-                      setFileName={setFileName}
-                    />
+                  <div className='flex justify-between'>
+                    <p className='pt-3 pb-[6px] tracking-[1px] uppercase text-gray-500 font-light text-[12px]'>Reference</p>
+                    { !similarityLoading && similarityRefFileName && (
+                    <button onClick={()=>{setSimilarityData(null); setSimilarityRef(null); setSimilarityRefFileName(null);}} className="text-[11px] cursor-pointer text-gray-600 py-2">
+                      Reset
+                    </button>
+                    )}
                   </div>
-                  )}
-
-                  { !loading && fileName && (
-                    <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 text-center flex flex-col gap-4 justify-center items-center">
-                      <div className='text-[#515bc3] bg-[#e0e6ff] w-8 h-8 rounded-full flex items-center justify-center mx-auto'>
-                        <Music size={16} className="text-[#515bc3]" />
-                      </div>
-                      <p className='text-sm text-gray-500'>{fileName ? fileName : ''}</p>
-                      <button onClick={()=>setAnalysisData(null)} className="bg-[#515bc3] w-full text-sm text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                        Reset
-                      </button>
+                  {/* Upload Section */}
+                    {!similarityRef && !similarityLoading && (
+                    <div className="bg-white rounded-xl">
+                      <AudioUpload
+                        onError={handleSimilarityError}
+                        disabled={similarityLoading}
+                        setData={setSimilarityRef}
+                        setFileName={setSimilarityRefFileName}
+                      />
                     </div>
-                  )}
-                  {/* Loading State */}
-                  {!analysisData && loading && (
-                     <Loading />
-                  )}
+                    )}
 
-                  {/* Error State */}
-                  {error && (
-                    <Error message={error} />
-                  )}
-              </div>
+                    {similarityRef && !similarityLoading && (
+                      <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 my-2 text-center flex flex-col gap-4 justify-center items-center">
+                        <div className='text-[#515bc3] bg-[#e0e6ff] w-8 h-8 rounded-full flex items-center justify-center mx-auto'>
+                          <Music size={16} className="text-[#515bc3]" />
+                        </div>
+                        <p className='text-sm text-gray-500'>{similarityRefFileName ? similarityRefFileName : ''}</p>
+                      </div>
+                    )}
+                    
+                </div>
+
+                {/* track b */}
+                <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-4 h-fit rounded-xl mt-10 px-6 py-3'>
+                  <div>
+                    <p className='text-[10px] font-[600] uppercase mt-2'>02 Track B</p>
+                  </div>
+                  <div className='flex justify-between'>
+                    <p className='pt-3 pb-[6px] tracking-[1px] uppercase text-gray-500 font-light text-[13px]'>Candidate</p>
+                    { !similarityLoading && similarityCandFileName && (
+                    <button onClick={()=>{setSimilarityData(null); setSimilarityRef(null); setSimilarityRefFileName(null);}} className="text-[11px] cursor-pointer text-gray-600 py-2">
+                      Reset
+                    </button>
+                    )}
+                  </div>
+                  {/* Upload Section */}
+                    {!similarityCand && !similarityLoading && !similarityCandFileName && (
+                    <div className="bg-white rounded-xl">
+                      <AudioUpload
+                        
+                        onError={handleSimilarityError}
+                        disabled={similarityLoading}
+                        setData={setSimilarityCand}
+                        setFileName={setSimilarityCandFileName}
+                      />
+                    </div>
+                    )}
+
+                    { !similarityLoading && similarityCandFileName && (
+                      <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 my-2 text-center flex flex-col gap-4 justify-center items-center">
+                        <div className='text-[#515bc3] bg-[#e0e6ff] w-8 h-8 rounded-full flex items-center justify-center mx-auto'>
+                          <Music size={16} className="text-[#515bc3]" />
+                        </div>
+                        <p className='text-sm text-gray-500'>{similarityCandFileName ? similarityCandFileName : ''}</p>
+                      </div>
+                    )}
+                </div>
               </div>
 
               <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-8 rounded-xl mt-6 px-6 py-3 flex justify-between items-center '>
                 <p className='flex items-center gap-3 text-gray-500 text-[13px] font-[monospace] font-medium'>distance: cosine <span className='text-xs text-gray-300'>|</span> features: mfcc <span>·</span> chroma <span>·</span> centroid <span>·</span> tempo</p>
-                <button className='bg-[#515bc3] text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-[14px] font-semibold'>Compute Similarity</button>
+                <button onClick={() => handleFetchSimilarity()} className='bg-[#515bc3] text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-[14px] font-semibold'>Compute Similarity</button>
               </div>
 
-              
-              <div className='bg-white shadow-sm border-[0.5px] border-gray-100 rounded-xl mt-10 px-6 py-6'>
+              {/* Placeholder for similarity results */}
+              {!similarityData && !similarityLoading && (
+              <div className='bg-white shadow-sm border-[0.5px] border-gray-100 rounded-xl mt-6 px-6 py-6'>
                 <div className="bg-white rounded-xl border-dashed border-gray-300 border p-8 text-center">
                   <div className="flex flex-col gap-3 justify-center items-center">
                     <div className="bg-gray-100 rounded-full p-2 w-fit">
@@ -275,10 +316,28 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+              )}
 
+              {/* Loading State */}
+              {!similarityData && similarityLoading && (
+                <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-4 h-fit rounded-xl mt-6 px-6 py-3'>
+                  <Loading />
+                </div>
+              )}
+
+              {/* Error State */}
+              {similarityError && (
+                <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-4 h-fit rounded-xl mt-6 px-6 py-3'>
+                  <Error message={similarityError} />
+                </div>
+              )}
+
+              {/* similarity results */}
+              {similarityData && !similarityLoading && !similarityError && (
               <div className='bg-white shadow-sm border-[0.5px] border-gray-100 flex-8 rounded-xl mt-6 p-6 '>
-                <Similarity />
+                <Similarity data={similarityData} similarityRefFileName={similarityRefFileName} similarityCandFileName={similarityCandFileName} />
               </div>
+              )}
             </div>
           </div>
         )}
