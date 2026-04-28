@@ -97,6 +97,11 @@ async def analyze_music_file(file: UploadFile = File(...)):
 
     return analysis_results
 
+# health check endpoint
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to the Music Analysis API. Use POST /analyze to analyze audio files. Use /docs for API documentation."}

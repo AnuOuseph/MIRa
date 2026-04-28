@@ -9,7 +9,7 @@ import Loading from '@/utils/Loading';
 import Error from '@/utils/Error';
 import GeneralAnalysis from '@/components/GeneralAnalysis';
 import { AudioLines, Dot, HeartPulse, Music } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   const [mode, setMode] = useState('analyze');
@@ -29,6 +29,11 @@ export default function Home() {
   const [similarityCand, setSimilarityCand] = useState(null);
   const [similarityRefFileName, setSimilarityRefFileName] = useState(null);
   const [similarityCandFileName, setSimilarityCandFileName] = useState(null);
+
+  // silently wake the backend on page load to avoid cold start delay on first analysis
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_MIRA_API_URL}/health`).catch(() => {})
+  }, [])
 
   // Analysis data handler
   const handleAnalysisComplete = (data) => {
