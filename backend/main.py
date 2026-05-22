@@ -1,9 +1,13 @@
 # main.py
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Form, Response, HTTPException
 from fastapi.responses import JSONResponse
 import analyzer  
 from services.music_similarity import compare_audio_files as calculate_similarity
+from services.dsp.audio_io import decode_audio
+from services.dsp.hrtf import make_hrtf
+from services.dsp.convolver import apply_binaural, encode_wav
+
 import os
 import tempfile
 
@@ -96,6 +100,81 @@ async def analyze_music_file(file: UploadFile = File(...)):
             os.unlink(tmp_file_path)
 
     return analysis_results
+
+# endpoint to spatialize audio 
+@app.post("/spatialize")
+async def spatialize(
+    audio: UploadFile = File(...),
+    azimuth: float = Form(...),
+    elevation: float = Form(0.0),
+):
+    try:
+        if not audio.content_type or not audio.content_type.startswith("audio/"):
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "success": False,
+                    "error": "Invalid file type. Please upload an audio file."
+                }
+            )
+
+        if not (-180 <= azimuth <= 360):
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "success": False,
+                    "error": "Azimuth must be between -180 and 360 degrees."
+                }
+            )
+
+        if not (-40 <= elevation <= 90):
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "success": False,
+                    "error": "Elevation must be between -40 and 90 degrees."
+                }
+            )
+
+        raw = await audio.read()
+
+        if not raw:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "success": False,
+                    "error": "Uploaded audio file is empty."
+                }
+            )
+
+        mono = decode_audio(raw)
+        hrtf_l, hrtf_r = make_hrtf(azimuth, elevation)
+        stereo = apply_binaural(mono, hrtf_l, hrtf_r)
+        wav = encode_wav(stereo)
+
+        return Response(
+            content=wav,
+            media_type="audio/wav",
+            headers={
+                "Content-Disposition": 'attachment; filename="spatialized.wav"'
+            }
+        )
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        print("Spatialize error:")
+        traceback.print_exc()
+
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "success": False,
+                "error": "Failed to spatialize audio.",
+                "message": str(e)
+            }
+        )
 
 # health check endpoint
 @app.get("/health")

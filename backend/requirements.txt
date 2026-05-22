@@ -3,6 +3,7 @@ uvicorn[standard]
 python-multipart
 librosa
 numpy
+scipy
 torch
 torchaudio
 transformers
