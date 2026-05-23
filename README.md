@@ -43,7 +43,6 @@ The project is motivated by core MIR research tasks — automatic annotation, ge
 | Instrument Detection | Hugging Face audio classifier | Label + confidence % |
 | Genre Classification | Transformer-based model | Top genres + confidence % |
 | Mood / Affect | Valence-arousal heuristics | Label, energy, valence |
-| AI vs Human Detection | Experimental spectral heuristic | Human/AI probability % |
 
 ### Similarity
 | Feature Vector | Representation | Weight |
@@ -121,7 +120,7 @@ python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 # FFmpeg required: brew install ffmpeg (macOS) or apt install ffmpeg (Linux)
 uvicorn main:app --reload
-# API docs at http://localhost:7860/docs
+# API docs at http://localhost:8000/docs
 ```
 
 **Frontend**
@@ -136,7 +135,6 @@ npm run dev
 
 ## Planned Extensions
 
-- **Music similarity** — cosine distance over MFCC/chroma vectors for track comparison
 - **Automatic annotation evaluation** — benchmark against GTZAN dataset with accuracy reporting
 - **Waveform & spectrogram visualization** — display audio features visually in the frontend using WaveSurfer.js
 - **Recommendation prototype** — nearest-neighbour search over a feature vector index
@@ -148,6 +146,9 @@ npm run dev
 - Tzanetakis, G. & Cook, P. (2002). Musical genre classification of audio signals. *IEEE Transactions on Speech and Audio Processing.*
 - McFee, B. et al. (2015). librosa: Audio and music signal analysis in Python. *Proceedings of the 14th Python in Science Conference.*
 - Défossez, A. et al. (2022). High fidelity neural audio compression. *arXiv:2210.13438.*
+- Gardner, W. & Martin, K. (1995). HRTF measurements of a KEMAR dummy-head microphone. *MIT Media Lab Technical Report.* — [MIT KEMAR Dataset](http://sound.media.mit.edu/resources/KEMAR.html)
+- Wefers, F. (2015). Partitioned convolution algorithms for real-time auralization. *Doctoral dissertation, RWTH Aachen University.* — Partitioned FFT-based HRTF processing
+- Møller, H. (1992). Fundamentals of binaural technology. *Applied Acoustics, 36(3-4), 171-218.* — Binaural rendering theory
 
 ---
 
