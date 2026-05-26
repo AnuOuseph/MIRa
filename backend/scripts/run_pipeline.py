@@ -1,4 +1,3 @@
-# scripts/run_pipeline.py
 from services.dsp.audio_io import decode_audio
 from services.dsp.hrtf import make_hrtf
 from services.dsp.convolver import apply_binaural, encode_wav

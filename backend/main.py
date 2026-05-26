@@ -6,6 +6,7 @@ import analyzer
 from services.music_similarity import compare_audio_files as calculate_similarity
 from services.dsp.audio_io import decode_audio
 from services.dsp.hrtf import make_hrtf
+from services.dsp.hrtf_kemar import load_kemar
 from services.dsp.convolver import apply_binaural, encode_wav
 
 import os
@@ -107,6 +108,7 @@ async def spatialize(
     audio: UploadFile = File(...),
     azimuth: float = Form(...),
     elevation: float = Form(0.0),
+    dataset:   str        = Form("synthetic"),
 ):
     try:
         if not audio.content_type or not audio.content_type.startswith("audio/"):
@@ -148,7 +150,10 @@ async def spatialize(
             )
 
         mono = decode_audio(raw)
-        hrtf_l, hrtf_r = make_hrtf(azimuth, elevation)
+        if dataset == "mit-kemar":
+            hrtf_l, hrtf_r = load_kemar(azimuth, elevation)
+        else:
+            hrtf_l, hrtf_r = make_hrtf(azimuth, elevation)
         stereo = apply_binaural(mono, hrtf_l, hrtf_r)
         wav = encode_wav(stereo)
 
