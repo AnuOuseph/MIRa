@@ -1,7 +1,8 @@
 # MIRa — Music Information Retrieval Analysis
 
-> A research-oriented prototype exploring how audio features and ML models can be combined into usable music analysis and similarity systems.
+> A research-oriented prototype for extracting, comparing, and spatializing audio — combining classical signal processing with transformer-based classification and binaural synthesis.
 
+<img src="./images/s5.png" width="49%" /> <img src="./images/s6.png" width="49%" />
 <img src="./images/s4.png" width="49%" /> <img src="./images/s1.png" width="49%" />
 <img src="./images/s3.png" width="49%" /> <img src="./images/s2.png" width="49%" />
 
@@ -9,42 +10,58 @@
 
 ---
 
-## TL;DR
-
-- Upload a music file → extract semantic audio features (tempo, key, genre, mood, spectral descriptors)
-- Compare two tracks → compute weighted cosine similarity across MFCC, chroma, spectral, and tempo vectors
-- Combines Librosa signal processing + Transformer-based classification
-- Deployed end-to-end: FastAPI on Hugging Face Spaces + Next.js on Vercel
-
----
-
-## Overview
-
-MIRa is a music analysis prototype built to explore how audio signal processing and machine learning models can be combined into a practical, usable interface. The system has two modes:
+## Modules
  
-**Analyze** — accepts a single audio file and returns a structured set of features covering tonal, rhythmic, timbral, and affective dimensions of the track.
+MIRa has three modes:
  
-**Compare** — accepts two audio files and computes a weighted similarity score across multiple feature dimensions, highlighting where tracks converge and differ at a per-feature level.
+**Analyze** — extract semantic audio features from a single track (tempo, key, genre, mood, instruments).
  
-The project is motivated by core MIR research tasks — automatic annotation, genre classification, mood inference, and music similarity — and serves as a foundation for further work in recommendation and retrieval.
+**Compare** — compute weighted similarity between two tracks across MFCC, chroma, spectral centroid, and tempo feature vectors.
+ 
+**Spatialize** — render a mono audio file binaurally based on a selected direction. Upload a file, pick an azimuth on an interactive compass, and hear the sound positioned around your head through headphones.
 
 ---
 
 ## Features
 
-### Analysis
+### Binaural Synthesis
+ 
+A spatial audio engine built from first principles and extended with measured HRTF data.
+ 
+**What's implemented:**
+ 
+- Audio decoding pipeline — WAV input, mono conversion, resampling to 44.1 kHz
+- Synthetic HRTF engine — Woodworth ITD formula, frequency-dependent ILD head shadow model, pinna spectral shaping via FFT notch filters
+- MIT KEMAR dataset integration 
+- FFT convolution engine using SciPy `fftconvolve`, stereo encoding to 16-bit WAV
+- FastAPI endpoint with dataset selection (synthetic vs KEMAR), validation, and error handling
+- Interactive compass UI — click or drag to position the source, live L/R gain meters, binaural bar visualizer, status-aware player
 
+**Limitations:**
+ 
+- Offline processing only — no real-time streaming
+- Generic HRTF (not individualised), so front/back and elevation cues are subtle for some listeners
+- WAV input only, MP3 not yet supported
+- Mobile UI not yet optimized
+---
+ 
+### Analysis Features
+ 
 | Feature | Method | Output |
 |---|---|---|
 | Tempo | Librosa beat tracking | BPM |
-| Musical Key | Chroma-based key estimation | Key name |
-| Loudness | RMS energy analysis | Normalized value |
+| Musical Key | Chroma-based key estimation | Key + confidence |
+| Loudness | RMS energy analysis | LUFS value |
 | Duration | Audio metadata | Seconds |
+| Perceptual Features | Energy, danceability, valence, acousticness | Normalized 0–1 |
 | Instrument Detection | Hugging Face audio classifier | Label + confidence % |
 | Genre Classification | Transformer-based model | Top genres + confidence % |
 | Mood / Affect | Valence-arousal heuristics | Label, energy, valence |
-
-### Similarity
+ 
+---
+ 
+### Similarity Method
+ 
 | Feature Vector | Representation | Weight |
 |---|---|---|
 | Timbre (MFCC) | Mean + std over 13 coefficients | 50% |
@@ -53,62 +70,20 @@ The project is motivated by core MIR research tasks — automatic annotation, ge
 | Rhythm (Tempo) | Single scalar | 5% |
  
 Overall similarity is a weighted combination of per-feature cosine similarities. Raw vector similarity (unweighted concatenation) is also returned for comparison.
-
----
-
-## Technical Approach
- 
-**Signal Processing Layer** — Low-level features are extracted using Librosa: beat tracking for tempo, chroma STFT for key estimation, RMS for loudness, and spectral descriptors (centroid, rolloff, flatness, ZCR). All features are computed on the raw waveform loaded at 22050 Hz. For similarity, features are aggregated as mean + standard deviation vectors over the first 30 seconds of audio, producing fixed-size representations regardless of track length.
- 
-**Classification Layer** — Higher-level semantic features (genre, instrument, mood) use pretrained Hugging Face Transformer models operating on mel-spectrogram representations.
- 
-**Similarity Method** — Cosine similarity is computed independently per feature group, then combined using explicit weights that reflect their perceptual importance (MFCC → timbre → strongest signal; tempo → weakest). The weighting is a deliberate design choice, not implicit in vector size.
- 
-**Limitations** — Genre classification performs well for broad categories but struggles with subgenre distinction, a known challenge (Tzanetakis & Cook, 2002). The AI detection module is an experimental heuristic and does not represent a production solution. The similarity method is a classical baseline — it does not model temporal structure or use learned semantic embeddings.
- 
----
-
-## System Architecture
- 
-```
-Audio File (MP3/WAV)
-      │
-      ▼
-┌──────────────────────────────────┐
-│         FastAPI Backend           │
-│  ┌────────────────────────────┐  │
-│  │   Signal Processing        │  │  ← Librosa: tempo, key, loudness
-│  │   (analyzer.py)            │  │
-│  ├────────────────────────────┤  │
-│  │   ML Classification        │  │  ← HF Transformers: genre, mood , instrument
-│  │   (services/)              │  │
-│  ├────────────────────────────┤  │
-│  │   Similarity Engine        │  │  ← Cosine similarity, weighted scoring
-│  │   (services/similarity.py) │  │
-│  └────────────────────────────┘  │
-│   REST API: /analyze /compare-audio│
-└──────────────────────────────────┘
-      │
-      ▼
-┌──────────────────────────────────┐
-│       Next.js Frontend            │
-│   Analyze mode + Compare mode     │
-└──────────────────────────────────┘
-```
  
 ---
 
 ## Stack
-
+ 
 | Layer | Technology |
 |---|---|
 | Backend | Python 3.10, FastAPI, Uvicorn |
-| Signal Processing | Librosa, NumPy, SoundFile |
-| ML Models | Hugging Face Transformers, Torch |
-| Audio I/O | FFmpeg, libsndfile |
+| Signal Processing | Librosa, NumPy, SciPy |
+| ML Models | Hugging Face Transformers, PyTorch |
+| Binaural | SciPy fftconvolve, MIT KEMAR HRTFs |
 | Frontend | Next.js 14, React, Tailwind CSS |
 | Deployment | Hugging Face Spaces (Docker) + Vercel |
-
+ 
 ---
 
 ## Running Locally
@@ -121,6 +96,13 @@ pip install -r requirements.txt
 # FFmpeg required: brew install ffmpeg (macOS) or apt install ffmpeg (Linux)
 uvicorn main:app --reload
 # API docs at http://localhost:8000/docs
+```
+
+**KEMAR HRTFs**
+ 
+Download the MIT KEMAR dataset and place in `backend/hrtf/kemar/`:
+```
+https://github.com/imclab/libAudio3D/tree/master/data/MIT-KEMAR-HRTFs
 ```
 
 **Frontend**
