@@ -151,6 +151,7 @@ async def spatialize(
 
         mono = decode_audio(raw)
         if dataset == "mit-kemar":
+            print(f"kemar dataset selected, loading HRTF for azimuth={azimuth}, elevation={elevation}")
             hrtf_l, hrtf_r = load_kemar(azimuth, elevation)
         else:
             hrtf_l, hrtf_r = make_hrtf(azimuth, elevation)

@@ -2,7 +2,7 @@ import wave
 import numpy as np
 from pathlib import Path
 
-KEMAR_DIR = Path("hrtf_data/kemar")
+KEMAR_DIR = Path(__file__).parent.parent.parent / "hrtf_data" / "kemar"
 SAMPLE_RATE = 44100
 
 ELEVATIONS = [-40, -30, -20, -10, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
