@@ -73,8 +73,8 @@ if __name__ == "__main__":
     test_file = "test_audio.mp3"  # Change this to your file name!
     try:
         results = analyze_audio(test_file)
-        print("✅ Analysis Successful!")
+        print("Analysis Successful!")
         print("Results:", results)
     except Exception as e:
-        print("❌ Error:", e)
+        print("Error:", e)
         print("Make sure you have an audio file named 'test_audio.mp3' in this folder.")
