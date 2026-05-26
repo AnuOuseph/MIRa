@@ -40,6 +40,7 @@ export default function Home() {
   const [audioUrl,  setAudioUrl]  = useState(null);
   const [file, setFile] = useState(null);
   const [sourceFileName, setSourceFileName] = useState(null);
+  const [dataset, setDataset] = useState("mit-kemar");
 
   // Silently wake the backend on page load to avoid cold start delay on first analysis
   useEffect(() => {
@@ -129,6 +130,7 @@ export default function Home() {
       form.append("audio",     file);
       form.append("azimuth", (360 - azimuth).toFixed(1));
       form.append("elevation", elevation.toString());
+      form.append("dataset", dataset);
   
       const res = await fetch(process.env.NEXT_PUBLIC_MIRA_API_URL + '/spatialize', {
         method: "POST",
@@ -439,9 +441,12 @@ export default function Home() {
                   
                   <div className='mb-2'>
                     <p className='pt-3 uppercase text-gray-500 font-light text-[12px]'>HRTF dataset</p>
-                    <select className='mt-2 w-full border-[0.5px] border-gray-300 outline-none hover:border-gray-400 rounded-md px-3 py-2 text-sm text-gray-600' >
+                    <select 
+                      value={dataset}
+                      onChange={(e) => setDataset(e.target.value)} 
+                      className='mt-2 w-full border-[0.5px] border-gray-300 outline-none hover:border-gray-400 rounded-md px-3 py-2 text-sm text-gray-600' >
                       <option value="mit-kemar">MIT KEMAR (default)</option>
-                      <option value="cipic-subject-003">CIPIC SUBJECT 003</option>
+                      <option value="synthetic">Synthetic HRTF</option>
                     </select>
                   </div>
 

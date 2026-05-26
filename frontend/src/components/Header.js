@@ -18,9 +18,9 @@ const Header = ({setMode, mode}) => {
             <button onClick={() => setMode('similarity')} className={`hover:text-gray-800 text-[15px] font-[500] py-1 px-4 cursor-pointer rounded-lg ${mode === 'similarity' ? 'bg-white text-gray-900 shadow-sm' : 'bg-transparent text-gray-600 shadow-none'}`}>
               Similarity
             </button>
-            {/* <button onClick={() => setMode('spatialize')} className={`hover:text-gray-800 text-[15px] font-[500] py-1 px-4 cursor-pointer rounded-lg ${mode === 'spatialize' ? 'bg-white text-gray-900 shadow-sm' : 'bg-transparent text-gray-600 shadow-none'}`}>
+            <button onClick={() => setMode('spatialize')} className={`hover:text-gray-800 text-[15px] font-[500] py-1 px-4 cursor-pointer rounded-lg ${mode === 'spatialize' ? 'bg-white text-gray-900 shadow-sm' : 'bg-transparent text-gray-600 shadow-none'}`}>
               Spatialize
-            </button> */}
+            </button>
           </div>
           <div className='text-sm text-gray-500 flex gap-1 items-center font-[monospace]'>
             <a href="https://github.com/AnuOuseph/MIRa/blob/main/README.md" target="_blank" rel="noopener noreferrer">
